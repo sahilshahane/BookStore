@@ -13,10 +13,16 @@ builder.Services.AddSqlite<BookStoreContext>("Data Source=BookStore.db");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.EnvironmentName.Equals("Development"))
+{
+    app.CreateDbIfNotExists();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -25,6 +31,7 @@ app.UseRouting();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Books}/{action=Index}/{bookId?}"
+);
 
 app.Run();

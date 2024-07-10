@@ -8,11 +8,14 @@ namespace BookStore.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(100)]
         public string Title { get; set; }
 
         [Required]
+        [MaxLength(100)]
         public string Author { get; set; }
 
+        [MaxLength(100)]
         public string Genre { get; set; }
 
         [Required]
