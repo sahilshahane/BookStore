@@ -34,4 +34,15 @@ app.MapControllerRoute(
     pattern: "{controller=Books}/{action=Index}/{bookId?}"
 );
 
+//app.MapControllerRoute(
+//    name: "List Books",
+//    pattern: "{controller=Books}/{action=Index}"
+//);
+
+//app.MapControllerRoute(
+//    name: "Edit Book",
+//    pattern: "{controller=Books}/Edit/{bookId?}"
+//);
+
+
 app.Run();

@@ -2,6 +2,7 @@
 using BookStore.Models;
 using BookStore.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace BookStore.Controllers
 {
@@ -14,12 +15,12 @@ namespace BookStore.Controllers
             this._bookService = new BookService(context);
         }
 
-
         [HttpGet]
         public IActionResult Index()
         {
             return View(_bookService.GetAll());
         }
+
         [HttpGet]
         public IActionResult Details(int bookId)
         {
@@ -29,41 +30,87 @@ namespace BookStore.Controllers
 
 
         [HttpGet]
-        public string Create()
+        public IActionResult Create()
         {
-            return "ok";
+            return View();
         }
 
         [HttpPost]
         public string Create(Book book)
         {
+            if (!ModelState.IsValid)
+            {
+                return "invalid values provided";
+            }
+
+
+            _bookService.Create(book);
+
             return "ok";
         }
 
 
         [HttpGet]
-        public string Edit()
+        public IActionResult Edit(int? bookId)
         {
-            return "ok";
+            var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
+            return View(book);
+
+        }
+
+
+
+        [HttpPost]
+        public IActionResult Edit(Book book)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
+            }
+
+
+            _bookService.Update(book);
+
+            return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
+        }
+
+
+        [HttpGet]
+        public IActionResult Delete()
+        {
+            //var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
+
+
+            //if (book == null)
+            //{
+            //    return RedirectToAction(nameof(Error), new ErrorViewModel() { Message = "Book not found" });
+            //}
+
+            //_bookService.Delete(book.Id);
+
+            return View();
         }
 
         [HttpPost]
-        public string Edit(Book book)
+        public IActionResult Delete(int? bookId)
         {
-            return "ok";
+            var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
+
+
+            if (book == null)
+            {
+                return RedirectToAction(nameof(Error), new ErrorViewModel() { Message = "Book not found" });
+            }
+
+            _bookService.Delete(book.Id);
+
+            return RedirectToAction(nameof(Delete));
         }
 
         [HttpGet]
-        public string Delete()
+        public IActionResult Error(ErrorViewModel error)
         {
-            return "ok";
+            return View(error);
         }
-
-        [HttpPost]
-        public string Delete(int bookId)
-        {
-            return "ok";
-        }
-
     }
 }

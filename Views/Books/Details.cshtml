@@ -15,3 +15,12 @@
 <p>
     Price: Rs.@Model.Price
 </p>
+
+
+<form asp-controller="Books" asp-action="Delete" asp-route-bookId="@Model.Id" method="post">
+
+    <button type="submit">
+        Delete Book
+    </button>
+
+</form>

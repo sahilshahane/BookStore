@@ -1,5 +1,27 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Book
+
+<form asp-controller="Books" asp-action="Create" method="post">
+
+    <label asp-for="@Model.Title">Title</label>
+    <input asp-for="@Model.Title" />
+    <span asp-validation-for="@Model.Title" class="text-danger" />
+
+    <label asp-for="@Model.Author">Author</label>
+    <input asp-for="@Model.Author" />
+    <span asp-validation-for="@Model.Author" class="text-danger" />
+
+    <label asp-for="@Model.Price">Price</label>
+    <input asp-for="@Model.Price" />
+    <span asp-validation-for="@Model.Price" class="text-danger" />
+
+
+    <label asp-for="@Model.Genre">Genre</label>
+    <input asp-for="@Model.Genre" />
+    <span asp-validation-for="@Model.Genre" class="text-danger" />
+
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>

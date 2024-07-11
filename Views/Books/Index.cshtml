@@ -1,24 +1,25 @@
-﻿@model IEnumerable<Book>
+﻿<table>
+    <tr>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Price</th>
+    </tr>
 
+    @foreach (var book in @Model)
+    {
 
-    <div>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Genre</th>
-                <th>Price</th>
-            </tr>
-    
-                @foreach(var book in @Model)
-                {
-                    <tr>
-                        <td>@book.Title</td>
-                        <td>@book.Author</td>
-                        <td>@book.Genre</td>
-                        <td>Rs.@book.Price</td>
-                    </tr>
-                }
-    </table>
+           
+        <tr >
 
-</div>
+            <td> <a style="background-color: blue;" asp-controller="Books" asp-action="Details" asp-route-bookId="@book.Id">@book.Id   </a></td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Genre</td>
+                    <td>Rs.@book.Price</td>
+             
+        </tr>
+         
+    }
+</table>
