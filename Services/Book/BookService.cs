@@ -1,17 +1,29 @@
 ﻿using BookStore.Data;
 using BookStore.Models;
+using BookStore.Services;
+using EntityFramework.Exceptions;
+using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookStore.Services
 {
+    internal static class BookServiceUtils
+    {
+        public static void SanitizeBookValues(Book book)
+        {
+            book.Title = book.Title.Trim();
+            book.Author = book.Author.Trim();
+            book.Genre = book.Genre.Trim();
+        }
+    }
+
     public class BookService
     {
-
         private readonly BookStoreContext _context;
 
         public BookService(BookStoreContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public IEnumerable<Book> GetAll()
@@ -24,10 +36,23 @@ namespace BookStore.Services
             return _context.Books.AsNoTracking().SingleOrDefault(p => p.Id == bookId);
         }
 
+
         public Book Create(Book newBook)
         {
-            _context.Add(newBook);
-            _context.SaveChanges();
+            try
+            {
+                BookServiceUtils.SanitizeBookValues(newBook);
+
+
+                _context.Add(newBook);
+                _context.SaveChanges();
+            }
+            catch (UniqueConstraintException ex)
+            {
+                throw new BookExistsException();
+            }
+
+
 
             return newBook;
         }
@@ -38,7 +63,7 @@ namespace BookStore.Services
 
             if (book == null)
             {
-                throw new InvalidOperationException("Book not found");
+                throw new BookNotFoundException();
             }
 
             return book;
@@ -55,12 +80,22 @@ namespace BookStore.Services
 
         public void Update(Book updatedBook)
         {
-            var book = FindBookByIdOrThrow(updatedBook.Id);
+            try
+            {
+                var book = FindBookByIdOrThrow(updatedBook.Id);
 
-            book.Title = updatedBook.Title;
-            book.Author = updatedBook.Author;
+                book.Title = updatedBook.Title;
+                book.Author = updatedBook.Author;
+                book.Genre = updatedBook.Genre;
 
-            _context.SaveChanges();
+                BookServiceUtils.SanitizeBookValues(book);
+
+                _context.SaveChanges();
+            }
+            catch (UniqueConstraintException ex)
+            {
+                throw new BookExistsException();
+            }
         }
 
         public void Delete(int bookId)
@@ -70,8 +105,6 @@ namespace BookStore.Services
             _context.Remove(book);
             _context.SaveChanges();
         }
-
-
-
     }
+
 }

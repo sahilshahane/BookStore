@@ -1,4 +1,5 @@
 using BookStore.Data;
+using BookStore.Lib;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ builder.Services.AddSqlite<BookStoreContext>("Data Source=BookStore.db");
 
 var app = builder.Build();
 
+//app.UseCors((x) => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 // Configure the HTTP request pipeline.
 if (app.Environment.EnvironmentName.Equals("Development"))
 {
@@ -19,20 +22,23 @@ if (app.Environment.EnvironmentName.Equals("Development"))
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error");
 }
-
 
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.MapControllers();
+
+app.UseHttpsRedirection();
+
 //app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Books}/{action=Index}/{bookId?}"
-);
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Books}/{action=Index}/{bookId?}"
+//);
 
 //app.MapControllerRoute(
 //    name: "List Books",

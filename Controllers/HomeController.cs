@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace BookStore.Controllers
 {
+    [Route("{controller}/{action}")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -13,20 +14,16 @@ namespace BookStore.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [Route("/Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("Views/Shared/Error.cshtml", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

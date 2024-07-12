@@ -1,7 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace BookStore.Models
 {
+    [Index(new string[] { nameof(Title), nameof(Author), nameof(Genre) }, IsUnique = true)]
     public class Book
     {
 

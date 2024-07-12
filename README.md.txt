@@ -6,12 +6,12 @@ The application should allow users to perform CRUD (Create, Read, Update, Delete
 Requirements:
 
 1.	Project Setup:
-o	Use ASP.NET Core to create the web application.
-o	Use Entity Framework Core for database operations.
-o	Use SQLite as the database provider for simplicity.
+(done) o	Use ASP.NET Core to create the web application.
+(done) o	Use Entity Framework Core for database operations.
+(done) o	Use SQLite as the database provider for simplicity.
 
 
-2.	Book Model:
+(done) 2.	Book Model:
 o	Create a Book class with the following properties:
 	Id (int, primary key)
 	Title (string, required)
@@ -20,12 +20,12 @@ o	Create a Book class with the following properties:
 	Price (decimal, required)
 
 
-3.	Database Context:
+(done) 3.	Database Context:
 o	Create a BookstoreContext class that inherits from DbContext.
 o	Configure the context to use SQLite.
 
 
-4.	Controllers:
+(done) 4.	Controllers:
 o	Create a BooksController to handle HTTP requests related to books.
 o	Implement the following actions:
 	Index (GET): Display a list of all books.
@@ -34,8 +34,7 @@ o	Implement the following actions:
 	Edit (GET, POST): Edit an existing book.
 	Delete (GET, POST): Delete a book.
 
-
-5.	Views:
+(done) 5.	Views:
 o	Use Razor Pages for the views.
 o	Create views for each action in the BooksController (Index, Details, Create, Edit, Delete).
 

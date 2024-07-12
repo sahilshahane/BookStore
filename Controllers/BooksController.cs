@@ -3,9 +3,13 @@ using BookStore.Models;
 using BookStore.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace BookStore.Controllers
 {
+
+    [Route("{controller=Books}/{action=Index}/{bookId?}")]
     public class BooksController : Controller
     {
         private readonly BookService _bookService;
@@ -24,10 +28,12 @@ namespace BookStore.Controllers
         [HttpGet]
         public IActionResult Details(int bookId)
         {
-            return View(_bookService.GetById(bookId));
+            var book = _bookService.GetById(bookId);
+
+            if (book == null) return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
+
+            return View(book);
         }
-
-
 
         [HttpGet]
         public IActionResult Create()
@@ -36,26 +42,47 @@ namespace BookStore.Controllers
         }
 
         [HttpPost]
-        public string Create(Book book)
+        public IActionResult Create(Book book)
         {
             if (!ModelState.IsValid)
             {
-                return "invalid values provided";
+                return RedirectToAction(nameof(Create));
+            }
+
+            try
+            {
+                _bookService.Create(book);
+            }
+            catch (BookExistsException)
+            {
+                return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book already exists" });
             }
 
 
-            _bookService.Create(book);
-
-            return "ok";
+            return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
         }
 
 
         [HttpGet]
         public IActionResult Edit(int? bookId)
         {
-            var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
-            return View(book);
+            try
+            {
+                if (!bookId.HasValue) throw new BookNotFoundException();
 
+
+                var book = _bookService.GetById(bookId.Value);
+
+
+                if (book == null) throw new BookNotFoundException();
+
+
+                return View(book);
+            }
+            catch (BookNotFoundException)
+            {
+                return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
+            }
         }
 
 
@@ -68,8 +95,18 @@ namespace BookStore.Controllers
                 return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
             }
 
-
-            _bookService.Update(book);
+            try
+            {
+                _bookService.Update(book);
+            }
+            catch (BookNotFoundException)
+            {
+                return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
+            }
+            catch (BookExistsException)
+            {
+                return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book already exists" });
+            }
 
             return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
         }
@@ -78,39 +115,26 @@ namespace BookStore.Controllers
         [HttpGet]
         public IActionResult Delete()
         {
-            //var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
-
-
-            //if (book == null)
-            //{
-            //    return RedirectToAction(nameof(Error), new ErrorViewModel() { Message = "Book not found" });
-            //}
-
-            //_bookService.Delete(book.Id);
-
             return View();
         }
 
         [HttpPost]
         public IActionResult Delete(int? bookId)
         {
-            var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
-
-
-            if (book == null)
+            try
             {
-                return RedirectToAction(nameof(Error), new ErrorViewModel() { Message = "Book not found" });
+                var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
+
+                if (book == null) throw new BookNotFoundException();
+
+                _bookService.Delete(book.Id);
+            }
+            catch (BookNotFoundException)
+            {
+                return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
             }
 
-            _bookService.Delete(book.Id);
-
             return RedirectToAction(nameof(Delete));
-        }
-
-        [HttpGet]
-        public IActionResult Error(ErrorViewModel error)
-        {
-            return View(error);
         }
     }
 }
