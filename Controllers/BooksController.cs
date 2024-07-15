@@ -46,7 +46,7 @@ namespace BookStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Create));
+                return View();
             }
 
             try
@@ -92,7 +92,7 @@ namespace BookStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Details), routeValues: new { bookId = book.Id });
+                return View();
             }
 
             try
