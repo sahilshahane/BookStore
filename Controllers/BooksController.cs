@@ -9,6 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace BookStore.Controllers
 {
 
+
     [Route("{controller=Books}/{action=Index}/{bookId?}")]
     public class BooksController : Controller
     {
@@ -19,10 +20,12 @@ namespace BookStore.Controllers
             this._bookService = new BookService(context);
         }
 
+
+
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(BookListPaginationOptions options)
         {
-            return View(_bookService.GetAll());
+            return View(_bookService.List(options));
         }
 
         [HttpGet]

@@ -4,6 +4,7 @@ using BookStore.Services;
 using EntityFramework.Exceptions;
 using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BookStore.Services
 {
@@ -17,6 +18,7 @@ namespace BookStore.Services
         }
     }
 
+
     public class BookService
     {
         private readonly BookStoreContext _context;
@@ -26,9 +28,39 @@ namespace BookStore.Services
             _context = context;
         }
 
-        public IEnumerable<Book> GetAll()
+        public BookListModel List(BookListPaginationOptions options)
         {
-            return _context.Books.AsNoTracking().ToList();
+            var extraLimit = (options.Limit.HasValue ? options.Limit.Value : 5) + 1;
+
+            IQueryable<Book> query = _context.Books.AsNoTracking().OrderBy(r => r.Id);
+
+            if (options.CursorId.HasValue) query = query.Where(r => r.Id >= options.CursorId.Value);
+
+
+            if (options.Search?.Length > 0)
+            {
+                var lowerCaseSearch = options.Search.ToLower();
+
+                query = query.Where(r => r.Title.ToLower().Contains(lowerCaseSearch) || r.Author.ToLower().Contains(lowerCaseSearch));
+            }
+
+            var books = query.Take(extraLimit).ToList();
+
+            var bookCount = books?.Count > 0 ? books.Count : 0;
+
+            int? nextCursorId = null;
+
+            // if this block executed then it indicates that next-page exists and last book is still not returned
+            if (bookCount > 0 && bookCount == extraLimit)
+            {
+                var lastBook = books.Last();
+
+                nextCursorId = lastBook.Id;
+
+                books?.Remove(lastBook);
+            }
+
+            return new() { Books = books != null ? books : [], NextCursorId = nextCursorId };
         }
 
         public Book? GetById(int bookId)

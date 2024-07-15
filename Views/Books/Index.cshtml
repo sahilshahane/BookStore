@@ -1,25 +1,36 @@
-﻿<table>
-    <tr>
-        <th>Id</th>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Genre</th>
-        <th>Price</th>
-    </tr>
+﻿@model BookListModel
 
-    @foreach (var book in @Model)
-    {
+<div>
+    <div>
+        <pre>Next Cursor Id: <span>@Model.NextCursorId</span></pre>
+    </div>
+
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Price</th>
+        </tr>
+
+        @foreach (var book in @Model.Books)
+        {
 
            
-        <tr >
+            <tr >
 
-            <td> <a style="background-color: blue;" asp-controller="Books" asp-action="Details" asp-route-bookId="@book.Id">@book.Id   </a></td>
-                    <td>@book.Title</td>
-                    <td>@book.Author</td>
-                    <td>@book.Genre</td>
-                    <td>Rs.@book.Price</td>
+                <td> <a style="background-color: blue;" asp-controller="Books" asp-action="Details" asp-route-bookId="@book.Id">@book.Id   </a></td>
+                        <td>@book.Title</td>
+                        <td>@book.Author</td>
+                        <td>@book.Genre</td>
+                        <td>Rs.@book.Price</td>
              
-        </tr>
+            </tr>
          
-    }
-</table>
+        }
+
+
+
+    </table>
+</div>

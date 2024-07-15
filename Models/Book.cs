@@ -11,23 +11,22 @@ namespace BookStore.Models
     [Index(nameof(Author))]
     public class Book
     {
-
         public int Id { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} length should be between {2} and {1}")]
-        [RegularExpression(@"^[a-z]+$", ErrorMessage = "Only alphabets are allowed")]
+        [RegularExpression(@"^((\w|\w\.)|\s)+$", ErrorMessage = "Only alphabets are allowed")]
         [DisplayName("Title")]
         public string Title { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} length should be between {2} and {1}")]
-        [RegularExpression(@"^[a-z]+$", ErrorMessage = "Only alphabets are allowed")]
+        [RegularExpression(@"^((\w|\w\.)|\s)+$", ErrorMessage = "Only alphabets are allowed")]
         [DisplayName("Author")]
         public string Author { get; set; }
 
         [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} length should be between {2} and {1}")]
-        [RegularExpression(@"^[a-z]+$", ErrorMessage = "Only alphabets are allowed")]
+        [RegularExpression(@"^((\w|\w\.)|\s)+$", ErrorMessage = "Only alphabets are allowed")]
         [DisplayName("Genre")]
         public string Genre { get; set; }
 
@@ -38,5 +37,9 @@ namespace BookStore.Models
         public decimal Price { get; set; }
 
     }
+
+
+
+
 
 }
