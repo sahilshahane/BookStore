@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations;
 namespace BookStore.Models
 {
     [Index(nameof(Title), nameof(Author), nameof(Genre), IsUnique = true)]
+    [Index(nameof(Title))]
+    [Index(nameof(Author))]
     public class Book
     {
 
