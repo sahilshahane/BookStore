@@ -3,26 +3,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookStore.Models
 {
-    public class BookListPaginationOptions
+    public class BookListModel : BookListPaginationOptionsModel
     {
-        public int? CursorId { get; set; }
 
-        public int? Limit { get; set; }
+        // indicates current cursor id 
+        //public int? CursorId { get; set; }
 
-        public string Search { get; set; } = string.Empty;
+        //public int? Limit { get; set; }
 
-        public BookListPaginationOptions() { }
-    }
+        //public string Search { get; set; } = string.Empty;
 
-    public class BookListModel : BookListPaginationOptions
-    {
         public BookListModel() : base() { }
 
         public IEnumerable<Book> Books { get; set; } = [];
 
         public int? NextCursorId { get; set; }
 
-        public bool PreviousPageExists { get; set; }
+        internal int? PreviousCursorId { get; set; }
     }
 
 }

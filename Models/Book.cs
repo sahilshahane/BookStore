@@ -31,7 +31,7 @@ namespace BookStore.Models
         public string Genre { get; set; }
 
 
-        [Range(0, 10000, ErrorMessage = "{0} should be between {2} and {1}")]
+        [Range(0, 10000, ErrorMessage = "{0} should be between {1} and {2}")]
         [DisplayName("Price")]
         [DefaultValue(0)]
         public decimal Price { get; set; }

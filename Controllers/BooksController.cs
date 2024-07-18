@@ -3,6 +3,7 @@ using BookStore.Models;
 using BookStore.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
@@ -23,9 +24,50 @@ namespace BookStore.Controllers
 
 
         [HttpGet]
-        public IActionResult Index(BookListPaginationOptions options)
+        public IActionResult Index(BookListPaginationOptionsModel options)
         {
-            return View(_bookService.List(options));
+            const int MAX_LIMIT = 20;
+            const int DEFAULT_LIMIT = 5;
+
+            int limit = options.Limit.HasValue ? int.Max(int.Min(options.Limit.Value, MAX_LIMIT), 0) : DEFAULT_LIMIT;
+
+            // limit + 1 is done to find if next-page exists
+            var books = _bookService.List(limit + 1, options.CursorId, options.Search);
+
+            var bookList = new BookListModel()
+            {
+                Books = [],
+                Search = options.Search,
+                Limit = limit,
+                CursorId = options.CursorId,
+            };
+
+            if (books == null)
+            {
+                return View(bookList);
+            }
+
+            var bookCount = books.Count();
+
+            // if this block executed then it indicates that next-page exists
+            if (bookCount == limit + 1)
+            {
+                var lastBook = books.Last();
+                bookList.NextCursorId = lastBook.Id;
+                books.Remove(lastBook);
+            }
+
+            bookList.Books = books;
+
+            if (options.CursorId.HasValue)
+            {
+                var prevCursorBook = _bookService.List(limit: 1, skip: limit, cursorId: options.CursorId.Value, search: options.Search, direction: BookService.LookupDirection.backward).LastOrDefault();
+
+                if (prevCursorBook != null) bookList.PreviousCursorId = prevCursorBook.Id;
+            }
+
+
+            return View(bookList);
         }
 
         [HttpGet]

@@ -1,10 +1,26 @@
 ﻿@model BookListModel
 
-<div>
-    <div>
-        <pre>Next Cursor Id: <span>@Model.NextCursorId</span></pre>
-    </div>
+    
+<style>
+    .show {
+        width: 100%;
+        background-color: red;
+    }
+</style>
 
+<div>
+    <div class="flex-column ">
+
+   
+    <form asp-controller="Books" asp-action="Index" method="get">
+        <input hidden asp-for="@Model.Limit" />
+        <input asp-for="@Model.Search" width="300px"/>
+        <button type="submit">Search</button>
+    </form>
+
+
+
+    </div>
     <table>
         <tr>
             <th>Id</th>
@@ -29,8 +45,34 @@
             </tr>
          
         }
-
-
-
     </table>
+
+
+    <div class="d-flex flex-row gap-2">
+   
+        <div class="@(Model.PreviousCursorId.HasValue ? "visible" : "invisible")">
+            <form asp-controller="Books" asp-action="Index" method="get">
+                <input hidden asp-for="@Model.Limit" />
+                <input hidden asp-for="@Model.CursorId" value="@Model.PreviousCursorId" />
+                <input hidden asp-for="@Model.Search" />
+
+                <button type="submit">Prev</button>
+            </form>
+        </div>
+
+
+        <div class="@(Model.NextCursorId.HasValue ? "visible" : "invisible")">
+            <form asp-controller="Books" asp-action="Index" method="get">
+                <input hidden asp-for="@Model.Limit" />
+                <input hidden asp-for="@Model.CursorId" value="@Model.NextCursorId" />
+                <input hidden asp-for="@Model.Search" />
+
+                <button type="submit">Next</button>
+            </form>
+        </div>
+
+    </div>
+
+
+
 </div>

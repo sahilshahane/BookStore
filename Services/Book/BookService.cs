@@ -4,7 +4,9 @@ using BookStore.Services;
 using EntityFramework.Exceptions;
 using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BookStore.Services
 {
@@ -12,9 +14,9 @@ namespace BookStore.Services
     {
         public static void SanitizeBookValues(Book book)
         {
-            book.Title = book.Title.Trim();
-            book.Author = book.Author.Trim();
-            book.Genre = book.Genre.Trim();
+            book.Title = Regex.Replace(book.Title.Trim(), @"\s+", " ");
+            book.Author = Regex.Replace(book.Author.Trim(), @"\s+", " ");
+            book.Genre = Regex.Replace(book.Genre.Trim(), @"\s+", " ");
         }
     }
 
@@ -28,45 +30,79 @@ namespace BookStore.Services
             _context = context;
         }
 
-        public BookListModel List(BookListPaginationOptions options)
+
+
+        public enum LookupDirection
         {
-            var extraLimit = (options.Limit.HasValue ? options.Limit.Value : 5) + 1;
+            forward,
+            backward
+        }
 
-            IQueryable<Book> query = _context.Books.AsNoTracking().OrderBy(r => r.Id);
+        public List<Book> List(int limit, int? cursorId, string? search, LookupDirection direction = LookupDirection.forward, int skip = 0)
+        {
+            if (limit <= 0) return [];
 
-            if (options.CursorId.HasValue) query = query.Where(r => r.Id >= options.CursorId.Value);
+            var query = _context.Books.AsNoTracking().AsQueryable();
 
-
-            if (options.Search?.Length > 0)
+            switch (direction)
             {
-                var lowerCaseSearch = options.Search.ToLower();
+                case LookupDirection.forward:
+                    {
+                        query = query.OrderBy(r => r.Id);
+
+                        if (cursorId.HasValue) query = query.Where(r => r.Id >= cursorId);
+                    }
+                    break;
+                case LookupDirection.backward:
+                    {
+                        query = query.OrderByDescending(r => r.Id);
+
+                        if (cursorId.HasValue) query = query.Where(r => r.Id <= cursorId);
+                    }
+                    break;
+            }
+
+            if (search?.Length > 0)
+            {
+                var lowerCaseSearch = search.ToLower();
 
                 query = query.Where(r => r.Title.ToLower().Contains(lowerCaseSearch) || r.Author.ToLower().Contains(lowerCaseSearch));
             }
 
-            var books = query.Take(extraLimit).ToList();
-
-            var bookCount = books?.Count > 0 ? books.Count : 0;
-
-            int? nextCursorId = null;
-
-            // if this block executed then it indicates that next-page exists and last book is still not returned
-            if (bookCount > 0 && bookCount == extraLimit)
-            {
-                var lastBook = books.Last();
-
-                nextCursorId = lastBook.Id;
-
-                books?.Remove(lastBook);
-            }
-
-            return new() { Books = books != null ? books : [], NextCursorId = nextCursorId };
+            return query.Skip(skip).Take(limit).ToList();
         }
 
         public Book? GetById(int bookId)
         {
             return _context.Books.AsNoTracking().SingleOrDefault(p => p.Id == bookId);
         }
+
+
+        public Book? GetBookByCursor(int cursorId, int skip, LookupDirection direction = LookupDirection.forward)
+        {
+            var query = _context.Books.AsNoTracking().AsQueryable();
+
+            switch (direction)
+            {
+                case LookupDirection.forward:
+                    {
+                        query = query.OrderBy(r => r.Id).Where(r => r.Id >= cursorId);
+                    }
+                    break;
+                case LookupDirection.backward:
+                    {
+                        query = query.OrderByDescending(r => r.Id).Where(r => r.Id <= cursorId);
+                    }
+                    break;
+
+                default: throw new NotImplementedException();
+            }
+
+            var book = query.Skip(skip).Take(1).FirstOrDefault();
+
+            return book;
+        }
+
 
 
         public Book Create(Book newBook)

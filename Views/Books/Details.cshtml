@@ -18,9 +18,13 @@
 
 
 <form asp-controller="Books" asp-action="Delete" asp-route-bookId="@Model.Id" method="post">
-
     <button type="submit">
         Delete Book
     </button>
+</form>
 
+<form asp-controller="Books" asp-action="Edit" asp-route-bookId="@Model.Id" method="get">
+    <button type="submit">
+        Edit Book
+    </button>
 </form>
