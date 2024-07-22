@@ -24,13 +24,13 @@ namespace BookStore.Services
     public class BookService
     {
         private readonly BookStoreContext _context;
+        private readonly ILogger _logger;
 
-        public BookService(BookStoreContext context)
+        public BookService(BookStoreContext context, ILoggerFactory logger)
         {
             _context = context;
+            _logger = logger.CreateLogger("BookStore.Services.BookService");
         }
-
-
 
         public enum LookupDirection
         {
@@ -38,9 +38,10 @@ namespace BookStore.Services
             backward
         }
 
-        public List<Book> List(int limit, int? cursorId, string? search, LookupDirection direction = LookupDirection.forward, int skip = 0)
+        async public Task<List<Book>> ListAsync(int limit, int? cursorId, string? search, LookupDirection direction = LookupDirection.forward, int skip = 0)
         {
             if (limit <= 0) return [];
+
 
             var query = _context.Books.AsNoTracking().AsQueryable();
 
@@ -69,65 +70,35 @@ namespace BookStore.Services
                 query = query.Where(r => r.Title.ToLower().Contains(lowerCaseSearch) || r.Author.ToLower().Contains(lowerCaseSearch));
             }
 
-            return query.Skip(skip).Take(limit).ToList();
+            return await query.Skip(skip).Take(limit).ToListAsync();
         }
 
-        public Book? GetById(int bookId)
+        async public Task<Book?> GetByIdAsync(int bookId)
         {
-            return _context.Books.AsNoTracking().SingleOrDefault(p => p.Id == bookId);
+            return await _context.Books.AsNoTracking().SingleOrDefaultAsync(p => p.Id == bookId);
         }
 
-
-        public Book? GetBookByCursor(int cursorId, int skip, LookupDirection direction = LookupDirection.forward)
-        {
-            var query = _context.Books.AsNoTracking().AsQueryable();
-
-            switch (direction)
-            {
-                case LookupDirection.forward:
-                    {
-                        query = query.OrderBy(r => r.Id).Where(r => r.Id >= cursorId);
-                    }
-                    break;
-                case LookupDirection.backward:
-                    {
-                        query = query.OrderByDescending(r => r.Id).Where(r => r.Id <= cursorId);
-                    }
-                    break;
-
-                default: throw new NotImplementedException();
-            }
-
-            var book = query.Skip(skip).Take(1).FirstOrDefault();
-
-            return book;
-        }
-
-
-
-        public Book Create(Book newBook)
+        async public Task<Book> CreateAsync(Book newBook)
         {
             try
             {
                 BookServiceUtils.SanitizeBookValues(newBook);
 
 
-                _context.Add(newBook);
-                _context.SaveChanges();
+                await _context.AddAsync(newBook);
+                await _context.SaveChangesAsync();
             }
             catch (UniqueConstraintException ex)
             {
                 throw new BookExistsException();
             }
 
-
-
             return newBook;
         }
 
-        public Book FindBookByIdOrThrow(int bookId)
+        async public Task<Book> FindBookByIdOrThrowAsync(int bookId)
         {
-            var book = _context.Books.Find(bookId);
+            var book = await _context.Books.FindAsync(bookId);
 
             if (book == null)
             {
@@ -137,20 +108,11 @@ namespace BookStore.Services
             return book;
         }
 
-        public void UpdateBookId(int oldBookId, int newBookId)
-        {
-            var book = FindBookByIdOrThrow(oldBookId);
-
-            book.Id = newBookId;
-
-            _context.SaveChanges();
-        }
-
-        public void Update(Book updatedBook)
+        async public Task UpdateAsync(Book updatedBook)
         {
             try
             {
-                var book = FindBookByIdOrThrow(updatedBook.Id);
+                var book = await FindBookByIdOrThrowAsync(updatedBook.Id);
 
                 book.Title = updatedBook.Title;
                 book.Author = updatedBook.Author;
@@ -166,9 +128,9 @@ namespace BookStore.Services
             }
         }
 
-        public void Delete(int bookId)
+        async public Task DeleteAsync(int bookId)
         {
-            var book = FindBookByIdOrThrow(bookId);
+            var book = await FindBookByIdOrThrowAsync(bookId);
 
             _context.Remove(book);
             _context.SaveChanges();

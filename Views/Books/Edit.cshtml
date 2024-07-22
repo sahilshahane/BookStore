@@ -1,36 +1,37 @@
 ﻿@model Book
 
 <form asp-controller="Books" asp-action="Edit" method="post">
+        <div>
+            <input asp-for="@Model.Id" readonly hidden />
 
-    <input asp-for="@Model.Id" readonly hidden />
+            <label class="form-label" asp-for="@Model.Title"></label>
+            <input class="form-control" asp-for="@Model.Title"></input>
+            <span asp-validation-for="@Model.Title" class="text-danger"></span>
 
+            <br />
 
-    <label asp-for="@Model.Title">Title</label>
-    <input asp-for="@Model.Title" />
-    <span asp-validation-for="@Model.Title" class="text-danger"></span>
+            <label class="form-label" asp-for="@Model.Author">Author</label>
+            <input class="form-control" asp-for="@Model.Author"></input>
+            <span asp-validation-for="@Model.Author" class="text-danger"></span>
 
-    <br/>
+            <br />
 
-    <label asp-for="@Model.Author">Author</label>
-    <input asp-for="@Model.Author" />
-    <span asp-validation-for="@Model.Author" class="text-danger"></span>
+            <label class="form-label" asp-for="@Model.Price"></label>
+            <input class="form-control" asp-for="@Model.Price"></input>
+            <span asp-validation-for="@Model.Price" class="text-danger"></span>
 
-    <br />
+            <br />
 
-    <label asp-for="@Model.Price">Price</label>
-    <input asp-for="@Model.Price" />
-    <span asp-validation-for="@Model.Price" class="text-danger"></span>
+            <label class="form-label" asp-for="@Model.Genre"></label>
+            <input class="form-control" asp-for="@Model.Genre"></input>
+            <span asp-validation-for="@Model.Genre" class="text-danger"></span>
 
-    <br />
+        </div>
 
-    <label asp-for="@Model.Genre">Genre</label>
-    <input asp-for="@Model.Genre" />
-    <span asp-validation-for="@Model.Genre" class="text-danger"></span>
-
-    <br />
-
-    <button type="submit">
-        Submit
-    </button>
+        <div class="d-flex">
+            <button type="submit" class="btn btn-primary mt-4 mx-auto">
+                Submit
+            </button>
+        </div>
 
 </form>

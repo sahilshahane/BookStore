@@ -2,6 +2,7 @@
 using BookStore.Models;
 using BookStore.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -15,16 +16,17 @@ namespace BookStore.Controllers
     public class BooksController : Controller
     {
         private readonly BookService _bookService;
+        private readonly ILogger _logger;
 
-        public BooksController(BookStoreContext context)
+        public BooksController(BookService bookService, ILoggerFactory logger)
         {
-            this._bookService = new BookService(context);
+            this._logger = logger.CreateLogger("BookStore.Controllers.BooksController");
+            this._bookService = bookService;
         }
 
 
-
         [HttpGet]
-        public IActionResult Index(BookListPaginationOptionsModel options)
+        async public Task<IActionResult> Index(BookListPaginationOptionsModel options)
         {
             const int MAX_LIMIT = 20;
             const int DEFAULT_LIMIT = 5;
@@ -32,7 +34,7 @@ namespace BookStore.Controllers
             int limit = options.Limit.HasValue ? int.Max(int.Min(options.Limit.Value, MAX_LIMIT), 0) : DEFAULT_LIMIT;
 
             // limit + 1 is done to find if next-page exists
-            var books = _bookService.List(limit + 1, options.CursorId, options.Search);
+            var books = await _bookService.ListAsync(limit + 1, options.CursorId, options.Search);
 
             var bookList = new BookListModel()
             {
@@ -61,7 +63,7 @@ namespace BookStore.Controllers
 
             if (options.CursorId.HasValue)
             {
-                var prevCursorBook = _bookService.List(limit: 1, skip: limit, cursorId: options.CursorId.Value, search: options.Search, direction: BookService.LookupDirection.backward).LastOrDefault();
+                var prevCursorBook = (await _bookService.ListAsync(limit: 1, skip: limit, cursorId: options.CursorId.Value, search: options.Search, direction: BookService.LookupDirection.backward)).LastOrDefault();
 
                 if (prevCursorBook != null) bookList.PreviousCursorId = prevCursorBook.Id;
             }
@@ -71,9 +73,9 @@ namespace BookStore.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details(int bookId)
+        async public Task<IActionResult> Details(int bookId)
         {
-            var book = _bookService.GetById(bookId);
+            var book = await _bookService.GetByIdAsync(bookId);
 
             if (book == null) return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
 
@@ -87,7 +89,7 @@ namespace BookStore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Book book)
+        async public Task<IActionResult> Create(Book book)
         {
             if (!ModelState.IsValid)
             {
@@ -96,7 +98,7 @@ namespace BookStore.Controllers
 
             try
             {
-                _bookService.Create(book);
+                await _bookService.CreateAsync(book);
             }
             catch (BookExistsException)
             {
@@ -109,14 +111,14 @@ namespace BookStore.Controllers
 
 
         [HttpGet]
-        public IActionResult Edit(int? bookId)
+        async public Task<IActionResult> Edit(int? bookId)
         {
             try
             {
                 if (!bookId.HasValue) throw new BookNotFoundException();
 
 
-                var book = _bookService.GetById(bookId.Value);
+                var book = await _bookService.GetByIdAsync(bookId.Value);
 
 
                 if (book == null) throw new BookNotFoundException();
@@ -133,7 +135,7 @@ namespace BookStore.Controllers
 
 
         [HttpPost]
-        public IActionResult Edit(Book book)
+        async public Task<IActionResult> Edit(Book book)
         {
             if (!ModelState.IsValid)
             {
@@ -142,7 +144,7 @@ namespace BookStore.Controllers
 
             try
             {
-                _bookService.Update(book);
+                await _bookService.UpdateAsync(book);
             }
             catch (BookNotFoundException)
             {
@@ -164,15 +166,15 @@ namespace BookStore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int? bookId)
+        async public Task<IActionResult> Delete(int? bookId)
         {
             try
             {
-                var book = _bookService.GetById(bookId.HasValue ? bookId.Value : 0);
+                var book = await _bookService.GetByIdAsync(bookId.HasValue ? bookId.Value : 0);
 
                 if (book == null) throw new BookNotFoundException();
 
-                _bookService.Delete(book.Id);
+                await _bookService.DeleteAsync(book.Id);
             }
             catch (BookNotFoundException)
             {
@@ -181,5 +183,6 @@ namespace BookStore.Controllers
 
             return RedirectToAction(nameof(Delete));
         }
+
     }
 }

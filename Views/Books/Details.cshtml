@@ -1,30 +1,37 @@
 ﻿@model Book
 
-<h1>
-    @Model.Title
-</h1>
+<div>
+    <h1> @Model.Title </h1>
+    <div style="width: 70%" class="border border-primary"> </div>
+</div>
 
-<p>
-    Author : @Model.Author
-</p>
+<div class="my-4">
 
-<p>
-    Genre : @Model.Genre
-</p>
+    <h5>
+        Author : <span>@Model.Author</span>
+    </h5>
 
-<p>
-    Price: Rs.@Model.Price
-</p>
+    <h5>
+        Genre : <span>@Model.Genre</span>
+    </h5>
 
+    <h5>
+        Price : <span>@Model.Price</span>
+    </h5>
 
-<form asp-controller="Books" asp-action="Delete" asp-route-bookId="@Model.Id" method="post">
-    <button type="submit">
-        Delete Book
-    </button>
-</form>
+</div>
 
-<form asp-controller="Books" asp-action="Edit" asp-route-bookId="@Model.Id" method="get">
-    <button type="submit">
-        Edit Book
-    </button>
-</form>
+<div class="d-flex gap-4 justify-content-center">
+
+    <form asp-controller="Books" asp-action="Edit" asp-route-bookId="@Model.Id" method="get">
+        <button type="submit" class="btn btn-primary mt-4 mx-auto" style="width: 120px">
+            Edit Book
+        </button>
+    </form>
+
+    <form asp-controller="Books" asp-action="Delete" asp-route-bookId="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger mt-4 mx-auto" style="width: 120px">
+            Delete Book
+        </button>
+    </form>
+</div>

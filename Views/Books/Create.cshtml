@@ -1,33 +1,35 @@
 ﻿@model Book?
 
 <form asp-controller="Books" asp-action="Create" method="post">
+    <div>
+        <label class="form-label" asp-for="@Model.Title"></label>
+        <input class="form-control" asp-for="@Model.Title"></input>
+        <span asp-validation-for="@Model.Title" class="text-danger"></span>
 
-    <label asp-for="@Model.Title"></label>
-    <input asp-for="@Model.Title"></input>
-    <span asp-validation-for="@Model.Title" class="text-danger"></span>
+        <br />
 
-    <br />
+        <label class="form-label" asp-for="@Model.Author">Author</label>
+        <input class="form-control" asp-for="@Model.Author"></input>
+        <span asp-validation-for="@Model.Author" class="text-danger"></span>
 
-    <label asp-for="@Model.Author">Author</label>
-    <input asp-for="@Model.Author"></input>
-    <span asp-validation-for="@Model.Author" class="text-danger"></span>
+        <br />
 
-    <br />
+        <label class="form-label" asp-for="@Model.Price"></label>
+        <input class="form-control" asp-for="@Model.Price"></input>
+        <span asp-validation-for="@Model.Price" class="text-danger"></span>
 
-    <label asp-for="@Model.Price"></label>
-    <input asp-for="@Model.Price"></input>
-    <span asp-validation-for="@Model.Price" class="text-danger"></span>
+        <br />
 
-    <br />
+        <label class="form-label" asp-for="@Model.Genre"></label>
+        <input class="form-control" asp-for="@Model.Genre"></input>
+        <span asp-validation-for="@Model.Genre" class="text-danger"></span>
 
-    <label asp-for="@Model.Genre"></label>
-    <input asp-for="@Model.Genre"></input>
-    <span asp-validation-for="@Model.Genre" class="text-danger"></span>
+    </div>
 
-    <br />
-
-    <button type="submit">
-        Submit
-    </button>
+    <div class="d-flex">
+        <button type="submit" class="btn btn-primary mt-4 mx-auto">
+            Submit
+        </button>
+    </div>
 
 </form>

@@ -1,75 +1,86 @@
 ﻿@model BookListModel
 
-    
-<style>
-    .show {
-        width: 100%;
-        background-color: red;
-    }
-</style>
 
 <div>
     <div class="flex-column ">
-
-   
-    <form asp-controller="Books" asp-action="Index" method="get">
-        <input hidden asp-for="@Model.Limit" />
-        <input asp-for="@Model.Search" width="300px"/>
-        <button type="submit">Search</button>
-    </form>
+        <form asp-controller="Books" asp-action="Index" method="get">
+            <input hidden asp-for="@Model.Limit" />
 
 
-
+            <div class="d-flex gap-3">
+                <input class="form-control" asp-for="@Model.Search" width="300px" />
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
     </div>
-    <table>
-        <tr>
-            <th>Id</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Price</th>
-        </tr>
 
-        @foreach (var book in @Model.Books)
-        {
+    <div>
+        <table class="table  table-hover">
+            <thead>
+                <tr>
+                    <th scope="col" >Id</th>
+                    <th scope="col" >Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Genre</th>
+                    <th scope="col">Price</th>
+                </tr>
+            </thead>
 
-           
-            <tr >
+            <tbody>
+                @foreach (var book in @Model.Books)
+                {
+                            <tr>
+                                <td scope="row"> <a asp-controller="Books" asp-action="Details" asp-route-bookId="@book.Id"> @book.Id </a> </td>
+                                <td >@book.Title</td>
+                                <td>@book.Author</td>
+                                <td>@book.Genre</td>
+                                <td>Rs.@book.Price</td>
+                            </tr>
+                }
 
-                <td> <a style="background-color: blue;" asp-controller="Books" asp-action="Details" asp-route-bookId="@book.Id">@book.Id   </a></td>
-                        <td>@book.Title</td>
-                        <td>@book.Author</td>
-                        <td>@book.Genre</td>
-                        <td>Rs.@book.Price</td>
-             
-            </tr>
-         
-        }
-    </table>
+                @if (Model.Limit.HasValue)
+                {
+                    var emptyRows = Model.Limit.Value - Model.Books.Count();
 
-
+                    for(int i = 0; i < emptyRows; i++)
+                    {
+                        <tr class="user-select-none">
+                            <td scope="row">&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+ 
     <div class="d-flex flex-row gap-2">
    
-        <div class="@(Model.PreviousCursorId.HasValue ? "visible" : "invisible")">
+        <div class="">
             <form asp-controller="Books" asp-action="Index" method="get">
                 <input hidden asp-for="@Model.Limit" />
                 <input hidden asp-for="@Model.CursorId" value="@Model.PreviousCursorId" />
                 <input hidden asp-for="@Model.Search" />
 
-                <button type="submit">Prev</button>
+                <button type="submit" class="btn btn-primary" disabled=@(!Model.PreviousCursorId.HasValue)>Prev</button>
             </form>
         </div>
 
 
-        <div class="@(Model.NextCursorId.HasValue ? "visible" : "invisible")">
-            <form asp-controller="Books" asp-action="Index" method="get">
-                <input hidden asp-for="@Model.Limit" />
-                <input hidden asp-for="@Model.CursorId" value="@Model.NextCursorId" />
-                <input hidden asp-for="@Model.Search" />
 
-                <button type="submit">Next</button>
+             <form asp-controller="Books" asp-action="Index" method="get">
+                 <input hidden asp-for="@Model.Limit" />
+                 <input hidden asp-for="@Model.CursorId" value="@Model.NextCursorId" />
+                 <input hidden asp-for="@Model.Search" />
+
+            <button type="submit" class="btn btn-primary" disabled=@(!Model.NextCursorId.HasValue)>Next</button>
             </form>
-        </div>
+
+
+
 
     </div>
 
