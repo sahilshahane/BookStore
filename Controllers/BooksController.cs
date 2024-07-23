@@ -10,17 +10,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BookStore.Controllers
 {
-
-
-    [Route("{controller=Books}/{action=Index}/{bookId?}")]
     public class BooksController : Controller
     {
         private readonly BookService _bookService;
-        private readonly ILogger _logger;
 
-        public BooksController(BookService bookService, ILoggerFactory logger)
+        public BooksController(BookService bookService)
         {
-            this._logger = logger.CreateLogger("BookStore.Controllers.BooksController");
             this._bookService = bookService;
         }
 
@@ -33,7 +28,7 @@ namespace BookStore.Controllers
 
             int limit = options.Limit.HasValue ? int.Max(int.Min(options.Limit.Value, MAX_LIMIT), 0) : DEFAULT_LIMIT;
 
-            // limit + 1 is done to find if next-page exists
+            // To find if next-page exists, we do (limit + 1)
             var books = await _bookService.ListAsync(limit + 1, options.CursorId, options.Search);
 
             var bookList = new BookListModel()
@@ -159,18 +154,12 @@ namespace BookStore.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult Delete()
-        {
-            return View();
-        }
-
         [HttpPost]
-        async public Task<IActionResult> Delete(int? bookId)
+        async public Task<IActionResult> Delete(int bookId)
         {
             try
             {
-                var book = await _bookService.GetByIdAsync(bookId.HasValue ? bookId.Value : 0);
+                var book = await _bookService.GetByIdAsync(bookId);
 
                 if (book == null) throw new BookNotFoundException();
 
@@ -181,7 +170,7 @@ namespace BookStore.Controllers
                 return View("Views/Shared/Error.cshtml", new ErrorViewModel() { Message = "Book not found" });
             }
 
-            return RedirectToAction(nameof(Delete));
+            return View();
         }
 
     }

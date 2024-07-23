@@ -24,12 +24,13 @@ namespace BookStore.Services
     public class BookService
     {
         private readonly BookStoreContext _context;
-        private readonly ILogger _logger;
+
+        //private readonly ILogger _logger;
 
         public BookService(BookStoreContext context, ILoggerFactory logger)
         {
             _context = context;
-            _logger = logger.CreateLogger("BookStore.Services.BookService");
+            //_logger = logger.CreateLogger("BookStore.Services.BookService");
         }
 
         public enum LookupDirection
@@ -41,7 +42,6 @@ namespace BookStore.Services
         async public Task<List<Book>> ListAsync(int limit, int? cursorId, string? search, LookupDirection direction = LookupDirection.forward, int skip = 0)
         {
             if (limit <= 0) return [];
-
 
             var query = _context.Books.AsNoTracking().AsQueryable();
 
@@ -71,6 +71,7 @@ namespace BookStore.Services
             }
 
             return await query.Skip(skip).Take(limit).ToListAsync();
+
         }
 
         async public Task<Book?> GetByIdAsync(int bookId)
@@ -110,6 +111,7 @@ namespace BookStore.Services
 
         async public Task UpdateAsync(Book updatedBook)
         {
+
             try
             {
                 var book = await FindBookByIdOrThrowAsync(updatedBook.Id);
@@ -117,15 +119,18 @@ namespace BookStore.Services
                 book.Title = updatedBook.Title;
                 book.Author = updatedBook.Author;
                 book.Genre = updatedBook.Genre;
+                book.Price = updatedBook.Price;
 
                 BookServiceUtils.SanitizeBookValues(book);
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (UniqueConstraintException ex)
             {
                 throw new BookExistsException();
             }
+
+
         }
 
         async public Task DeleteAsync(int bookId)
@@ -133,7 +138,7 @@ namespace BookStore.Services
             var book = await FindBookByIdOrThrowAsync(bookId);
 
             _context.Remove(book);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 
